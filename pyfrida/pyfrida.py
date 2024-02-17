@@ -100,12 +100,7 @@ function VMEntry(vmi) {
 function Bridge%d(%s) {
     const vmi = addVM()
     var stack = vms[vmi].stack
-try {
-    stack.push(Java.retain(this))
-}
-catch {
     stack.push(this)
-}
 %s
     
     send({"type": "bridge", "func": %d, "vm": vmi})
@@ -115,14 +110,9 @@ catch {
         for func_id, func in self._js_funcs.items():
             func_args = ", ".join(["a%d" % (i, ) for i in range(func["arg_num"])])
             push_template = r"""
-    try {
-        stack.push(Java.retain(a%d))
-    }
-    catch {
-        stack.push(a%d)
-    }
+    stack.push(a%d)
 """
-            push_func_args = "\n".join([push_template % (i, i) for i in range(func["arg_num"])])
+            push_func_args = "\n".join([push_template % (i, ) for i in range(func["arg_num"])])
             func_body = func_template % (func_id, func_args, push_func_args, func_id)
             body += func_body
         
